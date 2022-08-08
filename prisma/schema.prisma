@@ -22,7 +22,7 @@ model User {
 model Post {
   id          String   @id @default(uuid())
   title       String   @unique @db.VarChar(150)
-  description String?  @db.Text
+  description String?  @db.VarChar(255)
   body        String   @db.Text
   thumbnail   String   @db.Text
   status      Boolean  @default(true)
