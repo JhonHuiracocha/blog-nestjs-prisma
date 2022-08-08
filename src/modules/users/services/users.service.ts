@@ -50,12 +50,26 @@ export class UsersService {
     );
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  getUserById(id: string): Observable<User> {
+    return from(
+      this.prisma.user.findFirst({
+        where: {
+          id,
+          status: true,
+        },
+      }),
+    ).pipe(
+      map((userFound: User) => {
+        if (!userFound)
+          throw new HttpException(
+            'The user has not been found.',
+            HttpStatus.NOT_FOUND,
+          );
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+        delete userFound.password;
+        return userFound;
+      }),
+    );
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
