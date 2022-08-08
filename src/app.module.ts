@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { validate } from './common/validators';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { validate } from './common/validators';
       isGlobal: true,
     }),
     UsersModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
