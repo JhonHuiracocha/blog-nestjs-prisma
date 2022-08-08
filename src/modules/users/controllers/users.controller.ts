@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { User } from '@prisma/client';
 
 import { UsersService } from '../services';
 
@@ -17,8 +19,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  createUser(@Body() createUserDto: CreateUserDto): Observable<User> {
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get()
