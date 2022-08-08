@@ -72,11 +72,71 @@ export class UsersService {
     );
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  updateUserById(id: string, updateUserDto: UpdateUserDto): Observable<User> {
+    return from(
+      this.prisma.user.findFirst({
+        where: {
+          id,
+          status: true,
+        },
+      }),
+    ).pipe(
+      switchMap((userFound: User) => {
+        if (!userFound)
+          throw new HttpException(
+            'The user has not been found.',
+            HttpStatus.NOT_FOUND,
+          );
+
+        return from(
+          this.prisma.user.update({
+            where: {
+              id,
+            },
+            data: updateUserDto,
+          }),
+        ).pipe(
+          map((updatedUser: User) => {
+            delete updatedUser.password;
+            return updatedUser;
+          }),
+        );
+      }),
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  deleteUserById(id: string): Observable<User> {
+    return from(
+      this.prisma.user.findFirst({
+        where: {
+          id,
+          status: true,
+        },
+      }),
+    ).pipe(
+      switchMap((userFound: User) => {
+        if (!userFound)
+          throw new HttpException(
+            'The user has not been found.',
+            HttpStatus.NOT_FOUND,
+          );
+
+        return from(
+          this.prisma.user.update({
+            where: {
+              id,
+            },
+            data: {
+              status: false,
+            },
+          }),
+        ).pipe(
+          map((updatedUser: User) => {
+            delete updatedUser.password;
+            return updatedUser;
+          }),
+        );
+      }),
+    );
   }
 }
