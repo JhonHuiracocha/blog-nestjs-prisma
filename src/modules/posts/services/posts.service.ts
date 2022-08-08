@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { from, Observable } from 'rxjs';
+import { Post } from '@prisma/client';
 
 import { PrismaService } from '../../../common/services';
 
@@ -8,12 +10,34 @@ import { CreatePostDto, UpdatePostDto } from '../dto';
 export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  createPost(createPostDto: CreatePostDto): Observable<Post> {
+    const { author } = createPostDto;
+
+    return from(
+      this.prisma.post.create({
+        data: {
+          ...createPostDto,
+          author: {
+            connect: {
+              id: author.id,
+            },
+          },
+        },
+      }),
+    );
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  getPosts(take: number = 20, skip: number = 0): Observable<Post[]> {
+    return from(
+      this.prisma.post.findMany({
+        where: {
+          status: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+      }),
+    );
   }
 
   findOne(id: number) {

@@ -1,21 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 
 import { PostsService } from '../services';
+import { Observable } from 'rxjs';
+import { Post as PostModel } from '@prisma/client';
 
-import { CreatePostDto, UpdatePostDto } from '../dto'
+import { CreatePostDto, UpdatePostDto } from '../dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  createPost(@Body() createPostDto: CreatePostDto): Observable<PostModel> {
+    return this.postsService.createPost(createPostDto);
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  getPosts(
+    @Query('take') take: string,
+    @Query('skip') skip: string,
+  ): Observable<PostModel[]> {
+    return this.postsService.getPosts(+take, +skip);
   }
 
   @Get(':id')
