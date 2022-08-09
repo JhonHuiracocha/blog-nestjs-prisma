@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { from, Observable } from 'rxjs';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { from, Observable, switchMap, of } from 'rxjs';
 import { Post } from '@prisma/client';
 
 import { PrismaService } from '../../../common/services';
@@ -10,19 +10,40 @@ import { CreatePostDto, UpdatePostDto } from '../dto';
 export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  createPost(createPostDto: CreatePostDto): Observable<Post> {
-    const { author } = createPostDto;
-
+  doesPostExist(title: string): Observable<boolean> {
     return from(
-      this.prisma.post.create({
-        data: {
-          ...createPostDto,
-          author: {
-            connect: {
-              id: author.id,
-            },
-          },
+      this.prisma.post.findFirst({
+        where: {
+          title,
+          status: true,
         },
+      }),
+    ).pipe(switchMap((postFound: Post) => of(!!postFound)));
+  }
+
+  createPost(createPostDto: CreatePostDto): Observable<Post> {
+    const { author, title } = createPostDto;
+
+    return this.doesPostExist(title).pipe(
+      switchMap((doesPostExist: boolean) => {
+        if (doesPostExist)
+          throw new HttpException(
+            'The post already exists.',
+            HttpStatus.CONFLICT,
+          );
+
+        return from(
+          this.prisma.post.create({
+            data: {
+              ...createPostDto,
+              author: {
+                connect: {
+                  id: author.id,
+                },
+              },
+            },
+          }),
+        );
       }),
     );
   }
