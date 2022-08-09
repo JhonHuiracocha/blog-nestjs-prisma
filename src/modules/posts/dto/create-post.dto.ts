@@ -1,12 +1,4 @@
-import {
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-
-import { User } from '@prisma/client';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
@@ -27,6 +19,7 @@ export class CreatePostDto {
   @IsOptional()
   thumbnail?: string;
 
-  @IsNotEmptyObject()
-  author: User;
+  @IsString()
+  @IsNotEmpty()
+  authorId: string;
 }
