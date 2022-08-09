@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { from, Observable, switchMap, of } from 'rxjs';
+import { from, Observable, switchMap, of, map } from 'rxjs';
 import { Post } from '@prisma/client';
 
 import { PrismaService } from '../../../common/services';
@@ -61,8 +61,28 @@ export class PostsService {
     );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  getPostById(id: string): Observable<Post> {
+    return from(
+      this.prisma.post.findFirst({
+        where: {
+          id,
+          status: true,
+        },
+        include: {
+          author: true,
+        },
+      }),
+    ).pipe(
+      map((postFound: Post) => {
+        if (!postFound)
+          throw new HttpException(
+            'The post has not been found.',
+            HttpStatus.NOT_FOUND,
+          );
+
+        return postFound;
+      }),
+    );
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {

@@ -33,8 +33,8 @@ export class PostsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  getPostById(@Param('id') id: string): Observable<PostModel> {
+    return this.postsService.getPostById(id);
   }
 
   @Patch(':id')
