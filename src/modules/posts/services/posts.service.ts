@@ -44,15 +44,19 @@ export class PostsService {
     );
   }
 
-  getPosts(take: number = 20, skip: number = 0): Observable<Post[]> {
+  getPosts(page: number = 1, limit: number = 20): Observable<Post[]> {
+    const offset: number = (page - 1) * limit;
+
     return from(
       this.prisma.post.findMany({
         where: {
           status: true,
         },
-        orderBy: { createdAt: 'desc' },
-        take,
-        skip,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: Number(limit),
+        skip: Number(offset),
       }),
     );
   }

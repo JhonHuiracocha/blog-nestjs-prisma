@@ -26,10 +26,10 @@ export class PostsController {
 
   @Get()
   getPosts(
-    @Query('take') take: string,
-    @Query('skip') skip: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
   ): Observable<PostModel[]> {
-    return this.postsService.getPosts(+take, +skip);
+    return this.postsService.getPosts(page, limit);
   }
 
   @Get(':id')
