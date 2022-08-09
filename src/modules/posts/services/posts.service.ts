@@ -22,7 +22,7 @@ export class PostsService {
   }
 
   createPost(createPostDto: CreatePostDto): Observable<Post> {
-    const { author, title } = createPostDto;
+    const { authorId, title } = createPostDto;
 
     return this.doesPostExist(title).pipe(
       switchMap((doesPostExist: boolean) => {
@@ -36,11 +36,7 @@ export class PostsService {
           this.prisma.post.create({
             data: {
               ...createPostDto,
-              author: {
-                connect: {
-                  id: author.id,
-                },
-              },
+              authorId,
             },
           }),
         );
@@ -85,11 +81,61 @@ export class PostsService {
     );
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  updatePostById(id: string, updatePostDto: UpdatePostDto): Observable<Post> {
+    return from(
+      this.prisma.post.findFirst({
+        where: {
+          id,
+          status: true,
+        },
+      }),
+    ).pipe(
+      switchMap((postFound: Post) => {
+        if (!postFound)
+          throw new HttpException(
+            'The post has not been found.',
+            HttpStatus.NOT_FOUND,
+          );
+
+        return from(
+          this.prisma.post.update({
+            where: {
+              id,
+            },
+            data: updatePostDto,
+          }),
+        );
+      }),
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  deletePostById(id: string): Observable<Post> {
+    return from(
+      this.prisma.post.findFirst({
+        where: {
+          id,
+          status: true,
+        },
+      }),
+    ).pipe(
+      switchMap((postFound: Post) => {
+        if (!postFound)
+          throw new HttpException(
+            'The post has not been found.',
+            HttpStatus.NOT_FOUND,
+          );
+
+        return from(
+          this.prisma.post.update({
+            where: {
+              id,
+            },
+            data: {
+              status: false,
+            },
+          }),
+        );
+      }),
+    );
   }
 }

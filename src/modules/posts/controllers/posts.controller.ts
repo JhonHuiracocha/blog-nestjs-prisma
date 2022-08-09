@@ -38,12 +38,15 @@ export class PostsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  updatePostById(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ): Observable<PostModel> {
+    return this.postsService.updatePostById(id, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  deletePostById(@Param('id') id: string): Observable<PostModel> {
+    return this.postsService.deletePostById(id);
   }
 }
