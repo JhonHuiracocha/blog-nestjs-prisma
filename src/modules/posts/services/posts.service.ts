@@ -2,6 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { from, Observable, switchMap, of, map } from 'rxjs';
 import { Post } from '@prisma/client';
 
+import { generateSlug } from '../../../common/helpers';
+
 import { PrismaService } from '../../../common/services';
 
 import { CreatePostDto, UpdatePostDto } from '../dto';
@@ -10,11 +12,11 @@ import { CreatePostDto, UpdatePostDto } from '../dto';
 export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  doesPostExist(title: string): Observable<boolean> {
+  doesPostExist(slug: string): Observable<boolean> {
     return from(
       this.prisma.post.findFirst({
         where: {
-          title,
+          slug,
           status: true,
         },
       }),
@@ -24,7 +26,9 @@ export class PostsService {
   createPost(createPostDto: CreatePostDto): Observable<Post> {
     const { authorId, title } = createPostDto;
 
-    return this.doesPostExist(title).pipe(
+    const slug: string = generateSlug(title);
+
+    return this.doesPostExist(slug).pipe(
       switchMap((doesPostExist: boolean) => {
         if (doesPostExist)
           throw new HttpException(
@@ -36,7 +40,7 @@ export class PostsService {
           this.prisma.post.create({
             data: {
               ...createPostDto,
-              authorId,
+              slug,
             },
           }),
         );

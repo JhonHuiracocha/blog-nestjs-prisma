@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(150, { message: 'The title is too long.' })
+  @MaxLength(255, { message: 'The title is too long.' })
   title: string;
 
   @IsString()
